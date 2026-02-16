@@ -24,7 +24,7 @@ func _enter_tree():
 		return
 
 	_bottom_panel = BottomPanelScene.instantiate()
-	gut_as_panel()
+	gut_as_panel.call_deferred()
 
 	# ---------
 	# I removed this delay because it was causing issues with the shortcut button.
@@ -103,25 +103,31 @@ func toggle_windowed():
 
 
 func _deparent_bottom_panel():
+	if(_bottom_panel == null):
+		return
+
 	if(_dock_mode == 'window'):
-		_gut_window.remove_panel()
+		if(_gut_window != null):
+			_gut_window.remove_panel.call_deferred()
 	elif(_dock_mode == 'panel'):
-		remove_control_from_bottom_panel(_bottom_panel)
+		remove_control_from_bottom_panel.call_deferred(_bottom_panel)
 
 
 
 func _exit_tree():
 	remove_tool_menu_item("GUT")
 	_menu_mgr = null
-	GutEditorGlobals.user_prefs.save_it()
+	if(GutEditorGlobals.user_prefs != null):
+		GutEditorGlobals.user_prefs.save_it()
 	# Clean-up of the plugin goes here
 	# Always remember to remove_at it from the engine when deactivated
 	_deparent_bottom_panel()
 	if(_gut_window != null):
 		_gut_window.queue_free()
 
-	_bottom_panel.menu_manager = null
-	_bottom_panel.queue_free()
+	if(_bottom_panel != null):
+		_bottom_panel.menu_manager = null
+		_bottom_panel.queue_free()
 
 	remove_tool_menu_item("GUT") # made by _menu_mgr
 
